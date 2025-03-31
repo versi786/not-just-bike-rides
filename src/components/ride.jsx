@@ -7,12 +7,10 @@ function Ride({  instagramUrl, routeUrl, className}) {
     // TODO: why does a paragraph/link in jsx not match style of markdown paragraph?
   return (
   <>
-    <p>
-    Route: <a href={routeUrl}>{routeUrl}</a>
-    </p>
+    <h3>Route: <a href={routeUrl}>{routeUrl}</a></h3>
 
     <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <InstagramEmbed url={instagramUrl} caption width={"75%"} />
+        <InstagramEmbed url={instagramUrl} caption width={500} />
     </div>
   </>
   )

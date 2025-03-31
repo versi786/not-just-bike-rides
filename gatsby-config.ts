@@ -11,7 +11,7 @@ const config: GatsbyConfig = {
     siteTitle: `Not Just Bike Rides`,
     siteTitleAlt: `Not Just Bike Rides`,
     siteHeadline: `Not Just Bike Rides`,
-    siteUrl: `https://minimal-blog.lekoarts.de`,
+    siteUrl: `https://notjustbikerides.aasifversi.com`,
     siteDescription: `Not Just Bike Rides`,
     siteImage: `/banner.jpg`,
     siteLanguage: `en`,
@@ -59,9 +59,9 @@ const config: GatsbyConfig = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `minimal-blog - @lekoarts/gatsby-theme-minimal-blog`,
+        name: `Not Just Bike Rides`,
         short_name: `minimal-blog`,
-        description: `Typography driven, feature-rich blogging theme with minimal aesthetics. Includes tags/categories support and extensive features for code blocks such as live preview, line numbers, and code highlighting.`,
+        description: `Not Just Bike Rides`,
         start_url: `/`,
         background_color: `#fff`,
         // This will impact how browsers show your PWA/website
