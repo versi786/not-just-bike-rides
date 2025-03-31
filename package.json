@@ -13,7 +13,8 @@
     "build:cypress": "cross-env CYPRESS_SUPPORT=y yarn build",
     "start": "gatsby develop",
     "serve": "gatsby serve",
-    "clean": "gatsby clean"
+    "clean": "gatsby clean",
+    "deploy": "gatsby build && gh-pages -d public -b gh-pages"
   },
   "dependencies": {
     "@lekoarts/gatsby-theme-minimal-blog": "^6.2.4",
@@ -32,6 +33,7 @@
     "@types/react-dom": "^18.3.5",
     "ajv": "^8.17.1",
     "cross-env": "^7.0.3",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "gh-pages": "^5.0.0"
   }
 }

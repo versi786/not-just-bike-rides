@@ -30,18 +30,22 @@ const config: GatsbyConfig = {
             slug: `/blog`,
           },
           {
-            title: `About`,
-            slug: `/about`,
+            title: `Rides`,
+            slug: `/tags/rides`,
+          },
+          {
+            title: `RSS`,
+            slug: `/rss.xml`,
           },
         ],
         externalLinks: [
           {
-            name: `Bluesky`,
-            url: `https://bsky.app/profile/lekoarts.de`,
+            name: `Instagram`,
+            url: `https://www.instagram.com/not_just_bike_rides/`,
           },
           {
-            name: `Homepage`,
-            url: `https://www.lekoarts.de?utm_source=minimal-blog&utm_medium=Starter`,
+            name: `Github`,
+            url: `https://github.com/versi786/not-just-bike-rides`,
           },
         ],
       },
@@ -64,18 +68,7 @@ const config: GatsbyConfig = {
         // https://css-tricks.com/meta-theme-color-and-trickery/
         // theme_color: `#6B46C1`,
         display: `standalone`,
-        icons: [
-          {
-            src: `/android-chrome-192x192.png`,
-            sizes: `192x192`,
-            type: `image/png`,
-          },
-          {
-            src: `/android-chrome-512x512.png`,
-            sizes: `512x512`,
-            type: `image/png`,
-          },
-        ],
+        icons: [],
       },
     },
     {
@@ -124,7 +117,7 @@ const config: GatsbyConfig = {
   }
 }`,
             output: `rss.xml`,
-            title: `Not Just Bike rides`,
+            title: `Not Just Bike Rides`,
           },
         ],
       },
