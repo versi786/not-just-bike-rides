@@ -5,7 +5,6 @@ import { Paragraph, Text } from 'theme-ui'
 import { Themed } from '@theme-ui/mdx'
 
 function Ride({  instagramUrl, routeUrl, className}) {
-    // TODO: why does a paragraph/link in jsx not match style of markdown paragraph?
   return (
   <>
     <Themed.p>Route: <Themed.a href={routeUrl}>{routeUrl}</Themed.a></Themed.p>
