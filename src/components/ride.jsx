@@ -7,12 +7,18 @@ import { Themed } from '@theme-ui/mdx'
 function Ride({  instagramUrl, routeUrl, routeGpx,className}) {
   return (
   <>
-    <Themed.p>GPX: <Themed.a href={`/gpx/${routeGpx}`}>download</Themed.a></Themed.p>
-    <Themed.p>Route: <Themed.a href={routeUrl}>{routeUrl}</Themed.a></Themed.p>
+    <Themed.p>
+        GPX: <Themed.a href={`/gpx/${routeGpx}`}>download</Themed.a>
+        <br />
+        Route: <Themed.a href={routeUrl}>Strava</Themed.a>
+    </Themed.p>
 
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <InstagramEmbed url={instagramUrl} caption width={500} />
-    </div>
+    <Themed.p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <InstagramEmbed url={instagramUrl} caption width={500} />
+      </div>
+    </Themed.p>
+
   </>
   )
 }
