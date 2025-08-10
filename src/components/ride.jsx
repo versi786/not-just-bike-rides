@@ -4,9 +4,10 @@ import { jsx, Heading } from "theme-ui"
 import { Paragraph, Text } from 'theme-ui'
 import { Themed } from '@theme-ui/mdx'
 
-function Ride({  instagramUrl, routeUrl, className}) {
+function Ride({  instagramUrl, routeUrl, routeGpx,className}) {
   return (
   <>
+    <Themed.p>GPX: <Themed.a href={`/gpx/${routeGpx}`}>download</Themed.a></Themed.p>
     <Themed.p>Route: <Themed.a href={routeUrl}>{routeUrl}</Themed.a></Themed.p>
 
     <div style={{ display: 'flex', justifyContent: 'center' }}>
