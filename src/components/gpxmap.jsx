@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import * as toGeoJSON from '@mapbox/togeojson';
+import html2canvas from 'html2canvas'; 
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icons missing in Webpack/Gatsby builds
@@ -36,7 +37,8 @@ const FitBounds = ({ data }) => {
     if (data) {
       const geoJsonLayer = L.geoJSON(data);
       if (geoJsonLayer.getLayers().length > 0) {
-        map.fitBounds(geoJsonLayer.getBounds(), { padding: [22, 22] });
+        const paddingValue = map.getSize().x * 0.075; // 7.5%
+        map.fitBounds(geoJsonLayer.getBounds(), { padding: [paddingValue, paddingValue] });      
       }
     }
   }, [data, map]);
@@ -44,13 +46,18 @@ const FitBounds = ({ data }) => {
   return null;
 };
 
-const GpxMap = ({ src, height = "400px" }) => {
+
+const GpxMap = ({ src }) => {
   const [geoData, setGeoData] = useState(null);
   const [endpoints, setEndpoints] = useState({ start: null, end: null });
   const [rawStats, setRawStats] = useState({ distanceMeters: 0, elevationMeters: 0 });
   const [isMetric, setIsMetric] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  // 1. Re-add the feature handler for the track line/waypoints
+  // 1. Ref specifically for the Map container (to exclude stats)
+  const mapContainerRef = useRef(null);
+
+  // ... (Keep onEachFeature, useEffect for fetching, and stats calculation exactly the same)
   const onEachFeature = (feature, layer) => {
     if (feature.properties && (feature.properties.name || feature.properties.desc)) {
       const { name, desc } = feature.properties;
@@ -71,13 +78,11 @@ const GpxMap = ({ src, height = "400px" }) => {
         const gpx = new DOMParser().parseFromString(str, "text/xml");
         const converted = toGeoJSON.gpx(gpx);
         setGeoData(converted);
-
         const track = converted.features.find(f => f.geometry.type === 'LineString');
         if (track) {
           const coords = track.geometry.coordinates;
           let dist = 0;
           let ele = 0;
-
           for (let i = 0; i < coords.length - 1; i++) {
             const p1 = coords[i];
             const p2 = coords[i + 1];
@@ -87,7 +92,6 @@ const GpxMap = ({ src, height = "400px" }) => {
               if (diff > 0) ele += diff;
             }
           }
-
           setEndpoints({
             start: [coords[0][1], coords[0][0]],
             end: [coords[coords.length - 1][1], coords[coords.length - 1][0]]
@@ -97,7 +101,6 @@ const GpxMap = ({ src, height = "400px" }) => {
       });
   }, [src]);
 
-  // Conversions
   const displayDist = isMetric 
     ? (rawStats.distanceMeters / 1000).toFixed(2) + " km"
     : (rawStats.distanceMeters * 0.000621371).toFixed(2) + " mi";
@@ -106,87 +109,126 @@ const GpxMap = ({ src, height = "400px" }) => {
     ? Math.round(rawStats.elevationMeters) + " m"
     : Math.round(rawStats.elevationMeters * 3.28084) + " ft";
 
-  if (typeof window === 'undefined') return <div style={{ height, background: '#eee' }} />;
+  if (typeof window === 'undefined') return <div style={{ height: '400px', background: '#eee' }} />;
 
+  const handleDownloadImage = async () => {
+    if (mapContainerRef.current) {
+      setIsDownloading(true);
+      try {
+        const canvas = await html2canvas(mapContainerRef.current, {
+          useCORS: true,
+          allowTaint: true,
+          scale: 2,
+          // The "onclone" hook allows us to modify the temporary DOM used for the screenshot
+          onclone: (clonedDoc) => {
+            // 1. Hide the Zoom Controls (+/- buttons)
+            const zoomControls = clonedDoc.querySelector('.leaflet-control-zoom');
+            if (zoomControls) {
+              zoomControls.style.display = 'none';
+            }
+
+            // 2. Hide the Leaflet Attribution (optional, but makes it cleaner)
+            const attribution = clonedDoc.querySelector('.leaflet-control-attribution');
+            if (attribution) {
+              attribution.style.display = 'none';
+            }
+
+            // 3. Fix the Track Offset (Keep this from the previous fix)
+            const mapPane = clonedDoc.querySelector('.leaflet-map-pane');
+            if (mapPane) {
+              mapPane.style.transform = 'none';
+            }
+          }
+        });
+
+        const link = document.createElement('a');
+        link.download = `route-map-square.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        console.error("Screenshot failed:", err);
+      }
+      setIsDownloading(false);
+    }
+  };
   return (
-    <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee' }}>
-      <div style={{ height }}>
-        <MapContainer center={[0, 0]} zoom={2} style={{ height: '100%' }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          
+    <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', background: 'white' }}>
+      
+      {/* 2. Map Container: Added Ref here + aspectRatio: '1' */}
+      <div 
+        ref={mapContainerRef} 
+        style={{ 
+          width: '100%', 
+          aspectRatio: '1 / 1',  // Forces the div to be a square based on width
+          position: 'relative'   // Helpful for stacking context
+        }}
+      >
+          <MapContainer 
+            center={[0, 0]} 
+            zoom={2} 
+            preferCanvas={true} 
+            // Disable animations to prevent "ghosting" or offsets during capture
+            zoomAnimation={false}
+            fadeAnimation={false}
+            markerZoomAnimation={false}
+            style={{ height: '100%', width: '100%' }}        
+            zoomSnap={0.1}     // Allows the map to stop at 12.1, 12.2, etc.
+            zoomDelta={0.1}    // Makes manual zooming smoother
+            wheelPxPerZoomLevel={60} // Adjusts scroll sensitivity for fractional zoom
+          >
+          <TileLayer 
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+            crossOrigin="anonymous" 
+          />
           {geoData && (
             <GeoJSON 
               data={geoData} 
               style={{ color: "#3498db", weight: 5 }} 
-              onEachFeature={onEachFeature} // Attached here for track/waypoints
+              onEachFeature={onEachFeature} 
             />
           )}
-
-          {/* 2. Added Popups explicitly to the custom Start/End Markers */}
-          {endpoints.start && (
-            <Marker position={endpoints.start} icon={startIcon}>
-              <Popup>Start Point</Popup>
-            </Marker>
-          )}
-          {endpoints.end && (
-            <Marker position={endpoints.end} icon={endIcon}>
-              <Popup>Finish Line</Popup>
-            </Marker>
-          )}
-
+          {endpoints.start && <Marker position={endpoints.start} icon={startIcon}><Popup>Start</Popup></Marker>}
+          {endpoints.end && <Marker position={endpoints.end} icon={endIcon}><Popup>Finish</Popup></Marker>}
           <FitBounds data={geoData} />
         </MapContainer>
       </div>
 
-      {/* Status Bar */}
+      {/* Stats Bar (Outside the ref, so it won't be in the screenshot) */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: '1fr 1fr auto', // Two equal columns and one auto for the button
+        gridTemplateColumns: '1fr 1fr auto', 
         alignItems: 'center',
         padding: '12px 15px', 
         background: '#fff',
         fontFamily: 'system-ui, -apple-system, sans-serif',
         borderTop: '1px solid #eee'
       }}>
-        {/* Distance Group */}
         <div style={{ textAlign: 'center', borderRight: '1px solid #eee' }}>
           <small style={{ display: 'block', color: '#888', textTransform: 'uppercase', fontSize: '10px', fontWeight: '600', marginBottom: '2px' }}>
             Distance
           </small>
-          <div style={{ 
-            fontWeight: '700', 
-            fontSize: '16px', 
-            color: '#222',
-            fontVariantNumeric: 'tabular-nums' // Prevents numbers from shifting
-          }}>
+          <div style={{ fontWeight: '700', fontSize: '16px', color: '#222', fontVariantNumeric: 'tabular-nums' }}>
             {displayDist}
           </div>
         </div>
         
-        {/* Elevation Group */}
         <div style={{ textAlign: 'center' }}>
           <small style={{ display: 'block', color: '#888', textTransform: 'uppercase', fontSize: '10px', fontWeight: '600', marginBottom: '2px' }}>
             Elevation Gain
           </small>
-          <div style={{ 
-            fontWeight: '700', 
-            fontSize: '16px', 
-            color: '#222',
-            fontVariantNumeric: 'tabular-nums' // Prevents numbers from shifting
-          }}>
+          <div style={{ fontWeight: '700', fontSize: '16px', color: '#222', fontVariantNumeric: 'tabular-nums' }}>
             {displayEle}
           </div>
         </div>
 
-        {/* Toggle Button Group */}
-        <div style={{ paddingLeft: '15px' }}>
-          <button 
+        <div style={{ paddingLeft: '15px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+           <button 
             onClick={() => setIsMetric(!isMetric)}
             style={{
               background: '#f8f9fa',
               border: '1px solid #dcdcdc',
               borderRadius: '6px',
-              width: '100px', // Fixed width for the button so it doesn't resize when text changes
+              width: '100px',
               padding: '6px 0',
               fontSize: '10px',
               cursor: 'pointer',
@@ -196,6 +238,26 @@ const GpxMap = ({ src, height = "400px" }) => {
             }}
           >
             {isMetric ? 'Metric' : 'Imperial'}
+          </button>
+
+          <button 
+            onClick={handleDownloadImage}
+            disabled={isDownloading}
+            style={{
+              background: '#3498db',
+              border: 'none',
+              borderRadius: '6px',
+              width: '100px',
+              padding: '6px 0',
+              fontSize: '10px',
+              cursor: 'pointer',
+              fontWeight: '700',
+              color: '#fff',
+              textTransform: 'uppercase',
+              opacity: isDownloading ? 0.7 : 1
+            }}
+          >
+            {isDownloading ? 'Saving...' : '📸 Save Map'}
           </button>
         </div>
       </div>

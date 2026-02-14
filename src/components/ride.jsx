@@ -22,7 +22,7 @@ function Ride({ instagramUrl, routeUrl, routeGpx, className }) {
       <Themed.p>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ width: '100%', maxWidth: '500px' }}>
-            <GpxMap src={gpxPath} height="400px" />
+            <GpxMap src={gpxPath} />
           </div>
         </div>
       </Themed.p>
