@@ -151,7 +151,8 @@ const GpxMap = ({ src }) => {
       setIsDownloading(false);
     }
   };
-  const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  // https://github.com/CartoDB/basemap-styles/tree/master
+  const attribution = 'Positron: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
   return (
     <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', background: 'white' }}>
       
