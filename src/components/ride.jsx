@@ -1,8 +1,12 @@
 import * as React from "react"
 import { InstagramEmbed } from 'react-social-media-embed';
 import { Themed } from '@theme-ui/mdx'
-// Import the GpxMap component we created in the previous steps
-import GpxMap from "./gpxmap" 
+import loadable from '@loadable/component'
+
+// Replace your standard import with this:
+const GpxMap = loadable(() => import("./gpxmap"), {
+  fallback: <div style={{ height: '400px', background: '#f9f9f9', borderRadius: '12px' }} />
+})
 
 function Ride({ instagramUrl, routeUrl, routeGpx, className }) {
   const gpxPath = `/gpx/${routeGpx}`;
