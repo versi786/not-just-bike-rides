@@ -151,6 +151,7 @@ const GpxMap = ({ src }) => {
       setIsDownloading(false);
     }
   };
+  const attribution = '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   return (
     <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', background: 'white' }}>
       
@@ -159,7 +160,7 @@ const GpxMap = ({ src }) => {
         ref={mapContainerRef} 
         style={{ 
           width: '100%', 
-          aspectRatio: '1 / 1',  // Forces the div to be a square based on width
+          aspectRatio: '4 / 5',  
           position: 'relative'   // Helpful for stacking context
         }}
       >
@@ -177,8 +178,9 @@ const GpxMap = ({ src }) => {
             wheelPxPerZoomLevel={60} // Adjusts scroll sensitivity for fractional zoom
           >
           <TileLayer 
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+            url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png" 
             crossOrigin="anonymous" 
+            attribution={attribution}
           />
           {geoData && (
             <GeoJSON 
