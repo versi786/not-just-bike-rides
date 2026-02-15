@@ -16,15 +16,7 @@ function Ride({ instagramUrl, routeUrl, routeGpx, className }) {
       <Themed.p>
         GPX: <Themed.a href={gpxPath}>download</Themed.a>
         <br />
-        Route: <Themed.a href={routeUrl} target="_blank" rel="noreferrer">Strava</Themed.a>
-      </Themed.p>
-
-      <Themed.p>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '500px' }}>
-            <GpxMap src={gpxPath} />
-          </div>
-        </div>
+        Route: <Themed.a href={routeUrl} target="_blank" rel="noreferrer">URL</Themed.a>
       </Themed.p>
 
       {instagramUrl && (
@@ -34,6 +26,14 @@ function Ride({ instagramUrl, routeUrl, routeGpx, className }) {
           </div>
         </Themed.p>
       )}
+
+      <Themed.p>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '500px' }}>
+            <GpxMap src={gpxPath} />
+          </div>
+        </div>
+      </Themed.p>
     </div>
   )
 }
