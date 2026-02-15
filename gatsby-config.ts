@@ -41,7 +41,7 @@ const config: GatsbyConfig = {
         externalLinks: [
           {
             name: `Instagram`,
-            url: `https://www.instagram.com/not_just_bike_rides/`,
+            url: `https://www.instagram.com/notjustbikerides/`,
           },
           {
             name: `Github`,
